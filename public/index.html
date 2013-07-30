@@ -129,10 +129,11 @@
 	<script>
 		var socket = io.connect('http://192.168.1.114:3000');
     var user = {};
+    var users = {};
     var nickname = "";
 
-    socket.on('chat', function(data){
-      console.log('Chat message received from ' + data.name);
+    socket.on('new chat msg', function(data){
+      console.log('Chat message received from ' + data.sender);
       insertMessage(data);
     });
 
@@ -147,10 +148,14 @@
     });
 
 
-    socket.on("newUserConnected", function(data){
-      console.log("newUserConnected " + data);
-      var ulUserList = $("#usersList");
-      ulUserList.after('<li><a href="#">'+data.name+'</a></li>');
+    socket.on("newUserConnected", function(user){
+      if(!users[user.name]){
+        console.log("newUserConnected " + user.name);
+        users[user.name] = user;
+        var ulUserList = $("#usersList");
+        ulUserList.after('<li><a href="#">'+user.name+'</a></li>');
+      }
+      
     });
 
 
@@ -167,13 +172,15 @@
 			var message = $('#appendedInputButton').val();
 			socket.emit('messages', message);
       $('#appendedInputButton').val("");
-      insertMessage({"name":"Yo", "message":message});
+      insertMessage({"sender":"Yo", "message":message});
 		});
+
+
     function insertMessage(data){
-      var nickname = data.name;
+      var userName = data.sender;
       var message = data.message;
       var chatList = $('#chatMessages').children(".dl-horizontal");
-      $("<dt/>").html(nickname).appendTo(chatList);
+      $("<dt/>").html(userName).appendTo(chatList);
       $("<dd/>").html(message).appendTo(chatList);
     }
 	</script>

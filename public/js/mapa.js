@@ -5,6 +5,8 @@ var lat;
 var lon;
 var geocoder;
 var infowindow = new google.maps.InfoWindow();
+var markers = {};
+
 function inicio() {
 	//requestGeoLocation();
 }
@@ -27,7 +29,7 @@ function locatedOK(data) {
 		console.log (lat+ " " + lon);
 		var gpsOn = true;
 		drawAndCenterMap(lat,lon,gpsOn);
-		var info = {"latitud" : lat, "longitud" : lon, "nickname" : nickname};
+		var info = {"latitud" : lat, "longitud" : lon, "name" : nickname};
 		socket.emit("mapLocation", info);
 }
 
@@ -107,6 +109,7 @@ function codeLatLngNickname(lat,lon, nickname) {
 //Poner marcador en el Mapa en la loc
 function ponerMarca(loc, nickname) {
 	var marca = new google.maps.Marker({
+		title: nickname,
 		position: loc,
 		map: map
 	});
@@ -119,6 +122,7 @@ function ponerMarca(loc, nickname) {
 			ventana.open(map,marca);
 		});
 	}
+	return marca;
 
 	/*var ventana = new google.maps.InfoWindow(
 				{ content: loc.toString(),
@@ -126,6 +130,18 @@ function ponerMarca(loc, nickname) {
 				});
 	ventana.open(map,marca);*/
 }
+
+socket.on("location update", function(info){
+	console.log("The new");
+	console.log("location update " + info.name + " " + info.latitud + " " + info.longitud);
+	var marker = markers[info.name]
+	if(marker){
+		marker.setPosition(new google.maps.LatLng(info.latitud,info.longitud));
+	}else{
+		var latlng = new google.maps.LatLng(info.latitud,info.longitud);
+		markers[info.name] = ponerMarca(latlng, info.name);
+	}
+});
 
 function traerDireccionDeGoogleMaps(lat,lon) {
 	var consulta = "http://maps.googleapis.com/maps/api/geocode/json?latlng="+ lat +","+ lon +"&sensor=true";

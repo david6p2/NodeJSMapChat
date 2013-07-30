@@ -45,23 +45,35 @@ io.sockets.on('connection', function(client) {
 
   client.on('join', function(usuario){
     console.log(usuario.name + " connected" );
-    user.name = usuario.name;
-    client.set("nickname", name);
-    connectedUsers[user.name] = usuario;
-    client.broadcast.emit("newUserConnected", user);
+    //user.name = usuario.name;
+    client.set("nickname", usuario.name);
+    connectedUsers[usuario.name] = usuario;
+    client.broadcast.emit("newUserConnected", usuario);
   });
 
-  client.on('messages', function(data){
-    console.log(data);
+  client.on('messages', function(msg){
+    console.log(msg);
     client.get('nickname', function(err, name){
-      client.broadcast.emit("chat", {"name":name, "message":data});
+      var user = connectedUsers[name];
+      if(user){
+        var data = {
+          sender: user.name,
+          message: msg
+        };
+        client.broadcast.emit("new chat msg", data);//{"name":name, "message":msg});
+      }
     });
   });
+
+  
   client.on('mapLocation', function(info){
-    var lat = info.latitud;
-    var lon = info.longitud;
-    console.log("The map location info is: "+ lat + " " + lon + " " + info.nickname);
-    client.broadcast.emit("newUserMarker", info);
+    var user = connectedUsers[info.name];
+    if (user) {
+      user.lat = info.latitud;
+      user.lon = info.longitud;
+      console.log("The map location info is: "+ user.lat + " " + user.lon + " " + info.name);
+      client.broadcast.emit("location update", info);
+    }
   });
   
 

@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8">	
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Tappsi chat</title>
+	<link rel="icon" href="img/favicon.ico" type="image/x-icon">
+	<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+</head>
+<body>	
+	<p>Hola!</p>
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+	var user = {};
+	var usersCount, messagesList, messageBox, sendButton, webSocket;
+
+	function initialize(username) {
+	  user.name = username;
+
+	  webSocket = io.connect(window.location.hostname);
+	  webSocket.on("user connected", addUser);
+	  webSocket.on("user disconnected", removeUser);
+	  webSocket.on('new chat msg', receiveChatMessage);
+
+	  sendButton.on('click', sendChatMessage); 
+
+	  var userName = { name : user.name };
+
+	  webSocket.emit('join', userName,
+	    // Callback function
+	    function(key){
+	      user.key = key;
+	    }
+	  );
+	}
+
+	function addUser(user){
+	  ++usersCount;
+	}
+
+	function removeUser(key){ 
+	  --usersCount;
+	}
+
+	function receiveChatMessage(data) {
+	  // Add the received message to the list
+	  messagesList.append(data.message);
+	}
+
+	function sendChatMessage() {
+	  // Obtain messsage from textarea
+	  var messageVal = messageBox.val();
+	  messagesList.append(messageVal);
+	  // Empty textarea
+	  messageBox.val('');  
+	  // Send the message
+	  webSocket.send(messageVal);
+	}
+
+</script>
+</html>
+

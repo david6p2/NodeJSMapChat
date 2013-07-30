@@ -1,0 +1,32 @@
+@charset "UTF-8";
+/* CSS Document */
+
+#images{
+	height:300px;
+	overflow:auto;
+}
+#elMapa{
+	min-height:280px;
+	border:dotted;
+}
+	
+#valores{
+	font-size:small;
+	border:dashed;
+}
+#divVector{
+	font-size:small;
+	border:dashed #FF0000;
+}
+
+#chatMessages{
+	height:300px;
+	overflow:auto;
+}
+
+.dlRight{
+	text-align:right;
+}
+.dlLeft{
+	text-align:left;
+}
